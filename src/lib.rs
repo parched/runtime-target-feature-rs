@@ -70,8 +70,6 @@ pub fn runtime_target_feature(features: TokenStream, function: TokenStream) -> T
 
     let setup_block_tokens = quote! {
         {
-            pub extern crate runtime_target_feature_rt as rt;
-
             let chosen_function = if #(#have_features)&&* {
                 #features_ident
             } else {
