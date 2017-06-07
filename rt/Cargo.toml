@@ -1,0 +1,11 @@
+[package]
+name = "runtime-target-feature-rt"
+version = "0.1.0"
+authors = ["James Duley <jagduley@gmail.com>"]
+
+[dependencies.atomic]
+version = "0.3.3"
+features = ["nightly"]
+
+[dependencies]
+lazy_static = "0.2"
