@@ -50,7 +50,7 @@ pub fn runtime_target_feature(features: TokenStream, function: TokenStream) -> T
     let default_ident = Ident::new("default");
     let features_ident: Ident = features.iter()
         .map(|x| x.to_ident_string())
-        .fold("".to_string(), |acc, x| acc + &x) // TODO: separator
+        .fold("with".to_string(), |acc, x| acc + "_" + &x)
         .into();
 
     let function_item_default = Item {
