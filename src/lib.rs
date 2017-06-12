@@ -228,22 +228,24 @@ impl<'a> Feature<'a> {
         }
     }
 
-    fn name(&self) -> &str {
+    fn name(&self) -> String {
         match *self {
-            Feature::Enable(x) => x,
-            Feature::Disable(x) => x,
-        }
+                Feature::Enable(x) => x,
+                Feature::Disable(x) => x,
+            }
+            .replace(|c| c == '.' || c == '-', "_")
     }
 
     fn to_ident_string(&self) -> String {
         match *self {
-            Feature::Enable(x) => "enable_".to_string() + x,
-            Feature::Disable(x) => "disable_".to_string() + x,
-        }
+                Feature::Enable(_) => "enable_",
+                Feature::Disable(_) => "disable_",
+            }
+            .to_string() + &self.name()
     }
 
     fn checker_expr(&self) -> Expr {
-        let segments = ["rt", &("have_".to_string() + self.name())]
+        let segments = ["rt", &("have_".to_string() + &self.name())]
             .iter()
             .map(|x| PathSegment::from(*x))
             .collect();
@@ -269,4 +271,5 @@ impl<'a> Feature<'a> {
             }
         }
     }
+
 }
