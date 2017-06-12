@@ -20,6 +20,7 @@ pub fn runtime_target_feature(features: TokenStream, function: TokenStream) -> T
 
     let features = features_str
         .split(",")
+        .map(str::trim)
         .map(Feature::new)
         .collect::<Vec<_>>();
 
