@@ -40,3 +40,15 @@ fn test_whitespace() {
     let numbers = [1, 2, 3, 4, 5];
     assert_eq!(15, sum_whitespace(&numbers));
 }
+
+#[cfg_attr(any(target_arch = "x86", target_arch = "x86_64"), runtime_target_feature("+avx2;+avx;+sse4.2;+sse4.1;+ssse3;+sse3;+sse2"))]
+#[cfg_attr(target_arch = "arm", runtime_target_feature("+vfp4;+vfp3"))]
+pub fn sum_sets(input: &[u32]) -> u32 {
+    input.iter().sum()
+}
+
+#[test]
+fn test_sets() {
+    let numbers = [1, 2, 3, 4, 5];
+    assert_eq!(15, sum_sets(&numbers));
+}

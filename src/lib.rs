@@ -16,17 +16,24 @@ use std::option::Option;
 pub fn runtime_target_feature(features: TokenStream, function: TokenStream) -> TokenStream {
     let features_string = features.to_string();
 
-    let features_str = strip_quotes(strip_parens(features_string.as_str()));
+    let features_str = strip_quotes(strip_parens(features_string.as_str()))
+        .split(";")
+        .map(str::trim)
+        .collect::<Vec<_>>();
 
     let features = features_str
-        .split(",")
-        .map(str::trim)
-        .map(Feature::new)
+        .iter()
+        .map(|x| {
+                 x.split(",")
+                     .map(str::trim)
+                     .map(Feature::new)
+                     .collect::<Vec<_>>()
+             })
         .collect::<Vec<_>>();
 
     let have_features = features
         .iter()
-        .map(|ref x| x.checker_expr())
+        .map(|x| x.iter().map(|ref x| x.checker_expr()).collect::<Vec<_>>())
         .collect::<Vec<_>>();
 
     let function_string = function.to_string();
@@ -48,10 +55,15 @@ pub fn runtime_target_feature(features: TokenStream, function: TokenStream) -> T
 
     let setup_ident = Ident::new("setup");
     let default_ident = Ident::new("default");
-    let features_ident: Ident = features.iter()
-        .map(|x| x.to_ident_string())
-        .fold("with".to_string(), |acc, x| acc + "_" + &x)
-        .into();
+    let features_ident: Vec<Ident> = features
+        .iter()
+        .map(|x| {
+                 x.iter()
+                     .map(|x| x.to_ident_string())
+                     .fold("with".to_string(), |acc, x| acc + "_" + &x)
+                     .into()
+             })
+        .collect();
 
     let function_item_default = Item {
         ident: default_ident.clone(),
@@ -60,20 +72,25 @@ pub fn runtime_target_feature(features: TokenStream, function: TokenStream) -> T
         node: function_item.node.clone(),
     };
 
-    let function_item_with_features = Item {
-        ident: features_ident.clone(),
-        vis: Visibility::Inherited,
-        attrs: function_item.attrs.clone(),
-        node: function_item.node.clone(),
-    };
+    let function_item_with_features = features_ident
+        .iter()
+        .map(|x| {
+                 Item {
+                     ident: x.clone(),
+                     vis: Visibility::Inherited,
+                     attrs: function_item.attrs.clone(),
+                     node: function_item.node.clone(),
+                 }
+             })
+        .collect::<Vec<_>>();
 
     let setup_args = args.clone();
 
     let setup_block_tokens = quote! {
         {
-            let chosen_function = if #(#have_features)&&* {
+            let chosen_function = #(if #(#have_features)&&* {
                 #features_ident
-            } else {
+            } else )*{
                 #default_ident
             };
 
@@ -108,8 +125,8 @@ pub fn runtime_target_feature(features: TokenStream, function: TokenStream) -> T
 
             #function_item_default
 
-            #[target_feature = #features_str]
-            #function_item_with_features
+            #(#[target_feature = #features_str]
+            #function_item_with_features)*
 
             PTR.load(rt::atomic::Ordering::Relaxed)(#(#args),*)
         }
@@ -272,5 +289,4 @@ impl<'a> Feature<'a> {
             }
         }
     }
-
 }
