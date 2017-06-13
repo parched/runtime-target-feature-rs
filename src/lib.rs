@@ -6,9 +6,8 @@ extern crate syn;
 extern crate quote;
 
 use proc_macro::TokenStream;
-use syn::{parse_expr, parse_item, Abi, BareFnArg, BareFnTy, Block, Constness, Expr, ExprKind,
-          FnArg, FnDecl, Generics, Ident, Item, ItemKind, Pat, Path, PathSegment, UnOp, Unsafety,
-          Visibility};
+use syn::{parse_expr, Abi, BareFnArg, BareFnTy, Block, Expr, ExprKind, FnArg, FnDecl, Generics,
+          Ident, Item, ItemKind, Pat, Path, PathSegment, UnOp, Unsafety, Visibility};
 use quote::{Tokens, ToTokens};
 use std::option::Option;
 
@@ -151,7 +150,7 @@ pub fn runtime_target_feature(features: TokenStream, function: TokenStream) -> T
 
     let mut tokens = Tokens::new();
     dispatch_function.to_tokens(&mut tokens);
-    println!("{}", tokens);
+    // println!("{}", tokens);
     tokens.parse().unwrap()
 }
 
@@ -179,11 +178,11 @@ fn strip_quotes(str_with_quotes: &str) -> &str {
 }
 
 fn function_item_to_type(item_kind: &ItemKind) -> BareFnTy {
-    let (decl, unsafety, abi, generics): (&FnDecl, Unsafety, &Option<Abi>, &Generics) =
-        match *item_kind {
-            ItemKind::Fn(ref a, b, _, ref d, ref e, _) => (&*a, b, d, e),
-            _ => panic!("item must be a function"),
-        };
+    // TODO: handle generics
+    let (decl, unsafety, abi, _): (&FnDecl, Unsafety, &Option<Abi>, &Generics) = match *item_kind {
+        ItemKind::Fn(ref a, b, _, ref d, ref e, _) => (&*a, b, d, e),
+        _ => panic!("item must be a function"),
+    };
 
     let inputs = decl.inputs
         .iter()
