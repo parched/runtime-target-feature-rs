@@ -2,7 +2,7 @@
 Rust procedural macro to enable target features at runtime
 
 ## How to use
-```
+```rust
 #![feature(proc_macro)]
 #![feature(target_feature)]
 #![feature(const_fn)]
@@ -20,7 +20,7 @@ This generates 3 versions of `some_function`, one with avx2, one with sse4.1 and
 
 ### Notes:
 * The above isn't portable between archectures, so you should use `runtime_target_feature` with `cfg_attr` like
-  ```
+  ```rust
   #[cfg_attr(any(target_arch = "x86", target_arch = "x86_64"), runtime_target_feature("+avx"))]
   #[cfg_attr(target_arch = "arm", runtime_target_feature("+neon"))]
   pub fn some_function()
