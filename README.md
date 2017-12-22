@@ -2,6 +2,17 @@
 Rust procedural macro to enable target features at runtime
 
 ## How to use
+
+You have to both add the derive-crate and the runtime to your dependencies:
+
+```toml
+#[dependencies]
+runtime-target-feature = { git = "https://github.com/parched/runtime-target-feature-rs" }
+runtime-target-feature-rt = { git = "https://github.com/parched/runtime-target-feature-rs" }
+```
+
+Then, use the crate like this:
+
 ```rust
 #![feature(proc_macro)]
 #![feature(target_feature)]
